@@ -1,0 +1,51 @@
+#top level vars
+application_user: 'techops_user'
+#for password, ie python -c "from passlib.hash import sha512_crypt; print sha512_crypt.encrypt('your-password')"
+application_user_password_hash: '$6$ue9TSYTXt$5/6k/fivMpZj4DdiSJshCdheVGvuZXt6Y82KSdHJXdj/8aXvmf.LgG7bIscLGcAMbA2X188OMiKEWDPObX6CO0' # demo1234
+application_group: 'techops_group'
+application_name: 'techops_demo' #  Has to be the name of your Django project.  Ie same name as the folder containing settings.py
+update_apt_cache: yes
+#Database settings
+db_name: techops_demo_db
+db_user: demo
+db_password: demo1234
+# db_host:
+# db_port:
+#Web
+virtualenv_path: '/webapps/{{ application_name }}'
+git_root: '{{ virtualenv_path }}/{{ application_name }}'
+django_dir: '{{ git_root }}' #  Location of manage.py
+application_log_dir: '{{ virtualenv_path }}/logs'
+requirements_file: '{{ git_root }}/requirements.txt'
+#(Web) Gunicorn
+gunicorn_user: '{{ application_user }}'
+gunicorn_group: '{{ application_group }}'
+gunicorn_num_workers: 1
+gunicorn_max_requests: 0
+#(Web) Django
+django_settings_file: '{{ application_name }}.settings'
+django_secret_key: ''
+run_django_makemigrations: yes
+run_django_migrations: yes
+run_django_collectstatic: yes
+#(Web) Git
+setup_git_repo: yes
+git_repo: 'https://{{ git_user }}:{{ git_pass }}@github.com/aegrodin/{{ application_name }}.git'
+#(Web) Nginx
+nginx_server_name: localhost
+nginx_http_port: 80
+nginx_https_port: 443
+nginx_access_log_file: "{{ application_log_dir }}/nginx/nginx_access.log"
+nginx_error_log_file: "{{ application_log_dir }}/nginx/nginx_error.log"
+nginx_static_dir: "{{ git_root }}/static/"
+nginx_media_dir: "{{ git_root }}/media/"
+# Extras...
+#RDS
+create_rds: yes
+aws_zone: 'us-east-2a'
+aws_region: 'us-east-2'
+rds_vpc_security_groups: 'sg-5ed6f93a'
+rds_subnet_group: 'default-vpc-e1d6108a'
+rds_port: '5432'
+rds_instance: 'db.t2.micro'
+rds_size: '20'

@@ -1,0 +1,9 @@
+{{ application_log_dir }}/supervisord/*.log {
+    size 5M
+    missingok
+    compress
+    delaycompress
+    notifempty
+    create 0640 {{ application_user }} {{ application_group }}
+    sharedscripts
+}

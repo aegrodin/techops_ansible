@@ -1,0 +1,45 @@
+---
+
+- name: Install packages required by the Django app inside virtualenv
+  pip: 
+    virtualenv={{ virtualenv_path }}
+    virtualenv_command='/usr/bin/python3 -m venv'
+    requirements={{ requirements_file }}
+  tags:
+    - requirements 
+
+- name: Run the Django makemigrations command
+  sudo_user: "{{ application_user }}"
+  shell: . {{ virtualenv_path }}/bin/activate
+         && . {{ virtualenv_path }}/bin/postactivate
+         && cd {{ django_dir }}
+         && python3 manage.py makemigrations --noinput --settings={{ django_settings_file }}
+  when: run_django_makemigrations
+  tags: 
+    - django 
+    - makemigrations
+
+- name: Run Django migrations
+  sudo_user: "{{ application_user }}"
+  shell: . {{ virtualenv_path }}/bin/activate
+         && . {{ virtualenv_path }}/bin/postactivate
+         && cd {{ django_dir }}
+         && python3 manage.py migrate --noinput --settings={{ django_settings_file }}
+  when: run_django_migrations
+  tags: 
+    - django 
+    - migrate
+
+- name: Run Django collectstatic
+  shell: . {{ virtualenv_path }}/bin/activate
+         && . {{ virtualenv_path }}/bin/postactivate
+         && cd {{ django_dir }}
+         && python3 manage.py collectstatic --noinput --settings={{ django_settings_file }}
+  when: run_django_collectstatic
+  tags: 
+    - django 
+    - collectstatic 
+    - deploy
+
+
+

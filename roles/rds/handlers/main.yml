@@ -1,0 +1,25 @@
+---
+- name: Run Django makemigrations
+  sudo_user: "{{ application_user }}"
+  shell: . {{ virtualenv_path }}/bin/activate
+         && . {{ virtualenv_path }}/bin/postactivate
+         && cd {{ django_dir }}
+         && python3 manage.py makemigrations --noinput --settings={{ django_settings_file }}
+  when: run_django_makemigrations
+  tags: 
+    - rds
+
+- name: Run Django migrations
+  sudo_user: "{{ application_user }}"
+  shell: . {{ virtualenv_path }}/bin/activate
+         && . {{ virtualenv_path }}/bin/postactivate
+         && cd {{ django_dir }}
+         && python3 manage.py migrate --noinput --settings={{ django_settings_file }}
+  when: run_django_migrations
+  tags: 
+    - rds
+
+- name: Restart application
+  supervisorctl: name={{ application_name }} state=restarted
+  tags: 
+    - rds

@@ -1,0 +1,24 @@
+---
+- name: Create EC2 host first
+  hosts: localhost
+  gather_facts: False
+  vars_files:
+    - vars/aws.yml
+  roles:
+    - ec2
+
+- name: Provision {{ application_name }} with Ansible
+  hosts: all
+  gather_facts: True
+  become: yes
+  pre_tasks:
+  - name: 'Install python to let ansible do its magic' 
+    raw: 'sudo apt update && sudo apt -y install python'
+  vars_files:
+    - vars/aws.yml
+    - vars/common.yml
+    - vars/django_secret.yml
+    - vars/github.yml
+  roles:
+    - web
+    - rds

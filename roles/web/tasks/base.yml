@@ -1,0 +1,44 @@
+---
+
+- name: Ensure OpenSSl and libssl are the latest versions
+  apt: name={{ item }} update_cache={{ update_apt_cache }} state=latest
+  with_items:
+    - openssl
+    - libssl-dev
+    - libssl-doc
+    - python-apt
+  tags: packages
+
+- name: Install base packages
+  apt: name={{ item }} update_cache={{ update_apt_cache }} force=yes state=present
+  with_items:
+    - build-essential
+    - git
+    - python3-dev
+    - python3-pip
+    - python3-pycurl
+    - python3-venv
+    - supervisor
+  tags: packages
+
+- name: Install image libaries for Pillow
+  apt: name={{ item }} update_cache={{ update_apt_cache }} force=yes state=present
+  with_items:
+    - libjpeg62
+    - libjpeg-dev 
+    - libfreetype6 
+    - libfreetype6-dev 
+    - zlib1g-dev
+  tags: packages
+
+- name: Install virtualenv & boto
+  pip: 
+    name={{ item }}
+    executable=pip3
+  with_items:
+    - virtualenv
+    - boto
+    - boto3
+  tags: packages
+
+- include: create_users_and_groups.yml

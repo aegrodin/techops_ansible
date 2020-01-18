@@ -1,0 +1,13 @@
+{{ application_log_dir }}/gunicorn/*.log {
+    size 5M
+    missingok
+    compress
+    delaycompress
+    notifempty
+    create 0640 {{ application_user }} {{ application_group }}
+    sharedscripts
+
+    postrotate
+        [ -s {{ virtualenv_path }}/run/gunicorn.pid ] && kill -USR1 `cat {{ virtualenv_path }}/run/gunicorn.pid`
+    endscript
+}

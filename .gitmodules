@@ -1,0 +1,3 @@
+[submodule "techops_demo"]
+	path = techops_demo
+	url = git@github.com:aegrodin/techops_demo.git

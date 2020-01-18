@@ -1,0 +1,43 @@
+# work in progress..
+- name: Enable UFW firewall
+  service:
+    name: ufw
+    state: started
+    enabled: yes
+
+- name: Set UFW rules
+  ufw:
+    state: enabled
+    rule: allow
+    proto: tcp
+    port: "{{ item }}"
+  loop:
+    - "22"
+    - "80"
+
+- name: Remove CBC ciphers
+  lineinfile:
+    dest="/etc/ssh/sshd_config"
+    line="Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr"
+    state=present
+    insertafter=EOF
+  tags: hardening
+
+- name: Disable MD5 and 96-bit MAC algorithms
+  lineinfile:
+    dest="/etc/ssh/sshd_config"
+    line="MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com"
+    state=present
+    insertafter=EOF
+  register: hardening_done
+  tags: hardening
+
+- name: Restart SSHD
+  service: name=ssh state=restarted enabled=yes
+  when: hardening_done.changed
+  tags: hardening
+
+- name: Reboot the server and wait for it to come back up
+  reboot:
+  when: hardening_done.changed
+  tags: hardening

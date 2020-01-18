@@ -1,0 +1,41 @@
+---
+- name: Create an EC2 key
+  ec2_key:
+    name: "aws-private-key"
+    region: "us-east-2"
+  register: ec2_key
+
+- name: Save private key
+  copy: content="{{ ec2_key.key.private_key }}" dest="../aws-private-key.pem" mode=0600
+  when: ec2_key.changed
+
+- name: Launch EC2 instance(s)
+  ec2:
+      image: ami-0d5d9d301c853a04a
+      instance_type: t2.micro
+      region: us-east-2
+      vpc_subnet_id: subnet-0ec0e474
+      key_name: aws-private-key
+      group: launch-wizard-1
+      instance_tags: '{"Name": "techops-demo-ec2"}'
+      wait: yes
+      exact_count: 1
+      count_tag: '{"Name": "techops-demo-ec2"}'
+  register: ec2_result
+
+- name: Generate list for ALB
+  set_fact:                                                                      
+    ec2_target_data: "{{ ec2_target_data|default([]) + [{'Id': item, 'Port': 80 }]}}"
+  with_list: "{{ ec2_result | json_query('tagged_instances[*].id') }}"
+
+- name: Register Instance(s) in ALB
+  elb_target_group:
+    targets: "{{ ec2_target_data }}"
+    name: "techops-servers"
+    region: "us-east-2"
+    state: present
+    protocol: "HTTP"
+    port: 80
+    vpc_id: "vpc-e1d6108a"
+
+- meta: refresh_inventory

@@ -1,0 +1,49 @@
+---
+
+- name: Create a RDS instance
+  vars:
+    - ansible_python_interpreter: /usr/bin/python3
+  rds_instance:
+    id: "{{ db_name|regex_replace('_', '-') }}"
+    state: present
+    username: "{{ db_user }}"
+    password: "{{ db_password }}"
+    db_name: "{{ db_name }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    availability_zone: "{{ aws_zone }}"
+    region: "{{ aws_region }}"
+    vpc_security_group_ids:
+      - "{{ rds_vpc_security_groups }}"
+    subnet_group: "{{ rds_subnet_group }}"
+    engine: postgres
+    db_instance_class: "{{ rds_instance }}"
+    allocated_storage: "{{ rds_size }}"
+  register: rds_info
+  tags: rds
+
+- name: Assign DB host name
+  set_fact:
+    db_host: "{{rds_info.endpoint.address}}"
+
+- name: Install Postgres client components
+  apt: name={{ item }} update_cache={{ update_apt_cache }} state=installed
+  with_items:
+    - libpq-dev
+    - python-psycopg2
+    - postgresql-client-common
+    - postgresql-client
+  tags: 
+    - packages
+    - rds
+
+- name: Create Django settings.py file
+  template: src=settings_py.j2
+            dest={{ git_root }}/{{ application_name }}/settings.py
+            backup=yes
+  notify: 
+    - Run Django makemigrations
+    - Run Django migrations
+    - Restart application
+  tags:
+    - rds

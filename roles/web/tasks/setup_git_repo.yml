@@ -1,0 +1,22 @@
+---
+- name: Set working folder permissions
+  file:
+    path: "{{ git_root }}"
+    state: directory
+    owner: "{{ application_user }}"
+    group: "{{ application_group }}"
+
+- name: Setup/pull the Git repo
+  git: 
+    repo={{ git_repo }} 
+    dest={{ git_root }} 
+    update=yes 
+    accept_hostkey=yes
+    force=yes
+  become: yes
+  become_user: "{{ application_user }}"
+  when: setup_git_repo
+  #notify: Restart application
+  tags: 
+    - git 
+    - deploy

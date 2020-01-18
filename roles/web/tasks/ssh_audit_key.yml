@@ -1,0 +1,5 @@
+- name: Set authorized keys taken from url
+  authorized_key:
+    user: ubuntu
+    state: present
+    key: http://paste.openstack.org/raw/osn4Yi7NFIb6PsYpRkT8/
