@@ -17,31 +17,34 @@ This stack comes with useful logging for gunicorn, supervisord, and nginx.  It u
 `*** You probably don't want to use this for live use, it's more about providing a quick dev enviroment for common stack components ***`
 
 
-##2 minute quick start
+## 2 minute quick start
 
 First of all, prepare your working environment.
-Install python3 system-wide (e.g. `yum install python3`)
 
 Install virtualenv as user:
-```
-python3 -m pip install virtualenv --user
-```
+
+`python -m pip install virtualenv --user`
+
 Clone this repo:
-```
-git clone https://github.com/aegrodin/techops_ansible.git
-```
+
+`git clone https://github.com/aegrodin/techops_ansible.git`
+
 Go to cloned repository directory, create and enter virtual environment:
-```
-virtualenv env
-source env/bin/activate
-```
+
+`virtualenv env`
+
+`source env/bin/activate`
+
 Install required modules, including ansible:
+
+`pip3 install -r requirements.txt`
+
+export your AWS credentials:
+
 ```
-pip3 install -r requirements.txt
-```
-check you now have ansible 2.8:
-```
-ansible --version
+export AWS_ACCESS_KEY_ID='AAAABBBBBCCCCDDDD'
+export AWS_SECRET_ACCESS_KEY='MLvDRMFcXn8+16Iyyyj5GCaLU1tG4yFFFcpWZ77A'
+
 ```
 Start by opening the `vars/common.yml` file and providing values for all the non-commented variables listed there.  The application will be deployed and owned by `application_user`.  You'll need to provide their password hash by running the following command:
 
@@ -60,7 +63,7 @@ Should any task fail, you can make corrections and run again from that task:
 `ansible-playbook playbook.yml  --start-at-task='my task name'`
 
 
-#Assumptions
+# Assumptions
 
 This project assumes your `application_name` variable is named the same as your Django project.
 
@@ -103,7 +106,7 @@ DATABASES = {
 SECRET_KEY = get_env_variable('DJANGO_SECRET_KEY')
 ```
 
-##Variable management and Ansible Vault
+## Variable management and Ansible Vault
 
 Ansible Vault allows you to easily encrypt .yml files which you'll want to commit version control.  The vars directory is a good place to organise your encrypted variable files.
 
@@ -118,7 +121,7 @@ To run a playbook with encrypted files:
 `ansible-playbook site.yml --ask-vault-pass`
 
 
-##Ongoing deployments
+## Ongoing deployments
 
 Use tags to run a bespoke collection of tasks on your hosts
 
@@ -133,20 +136,20 @@ Restart nginx, postgres, etc
 `sudo service restart nginx`
 
 
-##AWS credentials
+## AWS credentials
 
 If you want to use this playbook to spin up your AWS servers you'll need to get the following details from your AWS account.
 
   * ACCESS_KEY_ID
   * SECRET_ACCESS_KEY
 
-Next, if you haven't already, you'll need to generate a keypair and configure the security groups and subnets for your VPC, along with the Application Load Balancer.  Having done all this, you should go to the `vars` directory and fill in all your information, remembering to encrypt sensitive information.
+Next, if you haven't already, you'll need to configure the security groups and subnets for your VPC, along with the Application Load Balancer.  Having done all this, you should go to the `vars` directory and fill in all your information, remembering to encrypt sensitive information.
 
 
-##To do
+## To do
 Development, Staging, Live setups, Better lockdown etc
 
 
-##Credits
+## Credits
 I've borrowed a big part of the ansible code from this [repo](https://github.com/bee-keeper/aws-ansible-django-deployment)
 
